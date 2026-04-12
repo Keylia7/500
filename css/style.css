@@ -1,0 +1,100 @@
+:root {
+    --copper: #b87333;
+    --bg-gradient: radial-gradient(circle at bottom, #2c3e50 0%, #050505 80%)
+}
+
+@font-face {
+    font-family: 'Orbitron'; 
+    src: url('../assets/fonts/Orbitron-VariableFont_wght.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #050505;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.book-cover {
+    width: 480px;
+    height: 650px;
+    background: var(--bg-gradient);
+    position: relative;
+    border-radius: 2px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
+
+    display: grid;
+    grid-template-rows: 2fr 3fr; 
+    overflow: hidden;
+}
+
+.top-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    align-items: center;
+
+    padding-top: 40px; 
+    padding-bottom: 50px;
+    box-sizing: border-box;
+
+    z-index: 10;
+}
+
+.author {
+    color: var(--copper);
+    font-size: 1rem;
+    letter-spacing: 8px;
+    font-weight: 300;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.title {
+    color: var(--copper);
+    font-size: 5.5em;
+    margin: 0;
+    font-weight: 100;
+    line-height: 0.8;
+}
+
+.bottom-section {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#cascade-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.square {
+    position: absolute;
+    background: var(--copper);
+    box-shadow: 0 0 15px rgba(184, 115, 51, 0.4);
+    pointer-events: none;
+}
+
+/* Style pour la "poussière" ou particules fines */
+.dust-particle {
+    position: absolute;
+    /* On utilise la même couleur de cuivre */
+    background: var(--copper); 
+    /* Forme ronde pour la poussière */
+    border-radius: 50%; 
+    pointer-events: none;
+    /* Lueur plus diffuse et subtile que les fragments */
+    box-shadow: 0 0 8px rgba(184, 115, 51, 0.3);
+    /* Un léger flou pour l'aspect vaporeux */
+    filter: blur(1px); 
+}
