@@ -113,7 +113,12 @@ function generateCascade() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', generateCascade);
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateCascade();
+    initBinaryBackground(); 
+});
+
 
 
 /**
@@ -165,23 +170,52 @@ document.querySelector('.book-wrap').addEventListener('click', function() {
 const keywordsData = {
     'loc-1': { 
         color: '#95a5a6', 
-        list: ['Cirque Glaciaire', '1850m', 'UV Intenses', 'Pâturages', 'Eau de source'] 
+        altitude: '1850m', 
+        meteo: 'Hivers rigoureux, UV intenses', 
+        ressources: ['Eau de source', 'Pâturages', 'Solaire'],
+        list: ['Cirque Glaciaire', '1850m', 'Rayonnement UV', 'Pâturages', 'Eau de source',
+            '-20°C', 'Gravité Hydraulique', 'Biomasse Limitée', 'Chauffage Critique', 
+            'Logistique de Pente', 'Gestion du Bois-Énergie'
+        ] 
     },
     'loc-2': { 
         color: '#00a8ff',
-        list: ['Cinq Îlots', 'Énergie Marémotrice', 'Vents Salins', '85% Humidité', 'Halieutique'] 
+        altitude: '12m', 
+        meteo: 'Climat tempéré, Humidité (85%)', 
+        ressources: ['Energie marémotrice', 'Stock Halieutique'],
+        list: ['Cinq Îlots', 'Énergie Marémotrice', 'Vents Salins', '85% Humidité', 'Halieutique',
+            'Énergie Marémotrice', 'Corrosion Marine', 'Oxydation Accélérée', 'Culture Aquaponique'
+        ] 
     },
     'loc-3': { 
         color: '#27ae60', 
-        list: ['Inertie Thermique', 'Semi-enterré', 'Terrasses', 'Pluie', 'Tempéré'] 
+        altitude: '321 mètres', 
+        meteo: 'Climat tempéré', 
+        ressources: ["Captage Pluvial", 'Jardins en terrasses'],
+        list: ['Inertie Thermique', 'Semi-enterré', 'Toits Végétalisés', 'Tempéré',
+            'Architecture Vernaculaire', 'Récupération Pluviale', 'Puits de Lumière',
+            'Humus Fertile'
+        ] 
     },
     'loc-4': { 
         color: '#f1c40f', 
-        list: ['Pierre Sèche', 'Plateau Calcaire', 'Vergers', 'Puits Artésiens', 'Médiéval'] 
+        altitude: '280 mètres', 
+        meteo: 'Climat tempéré, Précipitations modérées', 
+        ressources: ["Terre agricoles riches", 'Vergers', 'Puits artésiens'],
+        list: ['Pierre Sèche', 'Plateau Calcaire', 'Vergers', 'Puits Artésiens', 'Médiéval',
+            'Gelées Hivernales', 'Terres Alluviales', 'Aridité Estivale', 'Agroforesterie',
+            'Artisanat de la Pierre'
+        ] 
     },
     'loc-5': { 
         color: '#e67e22', 
-        list: ['Aride', 'Solaire Illimité', '45°C', 'Minéraux', 'Technologique'] 
+        altitude: '450 mètres', 
+        meteo: 'Chaleur extrême le jour, Nuits glaciales, Hygrométrie (5%)', 
+        ressources: ['Énergie solaire', 'Terres Minérales'],
+        list: ['Plateau Aride', 'Solaire Illimité', '45°C', 'Minéraux', 'Technologique',
+            'Amplitude Thermique', 'Nuits Glaciales', 'Sels Fondus', 'Stress Thermique',
+            'Zéro Humidité'
+        ] 
     }
 };
 
@@ -195,24 +229,34 @@ cards.forEach(card => {
     const locClass = [...card.classList].find(c => c.startsWith('loc-'));
     const data = keywordsData[locClass];
     const backFace = card.querySelector('.card-back');
-    const cityName = card.querySelector('.city-name').innerText;
+    const cityNameElement = card.querySelector('.city-name');
+    const cityNameText = cityNameElement.innerText;
 
     if (data && backFace) {
         backFace.style.backgroundColor = `${data.color}15`; 
         backFace.style.border = `1px solid ${data.color}`;
-        backFace.querySelector('h3').style.color = data.color;
     }
 
     card.addEventListener('mouseenter', () => {
         if (isLocationLocked) return;
-        displayKeywords(data);
-        updateCenterUI('analyzing', data, cityName);
+        updateCenterUI('analyzing', data, cityNameText);
+
+        card.style.borderColor = data.color;
+        card.style.boxShadow = `0 15px 40px ${data.color}44`;
+        cityNameElement.style.color = data.color;
+        cityNameElement.style.textShadow = `0 0 10px ${data.color}66`;
     });
 
     card.addEventListener('mouseleave', () => {
         if (isLocationLocked) return;
+
         clearKeywords();
         updateCenterUI('default');
+
+        card.style.borderColor = 'rgba(184, 115, 51, 0.3)';
+        card.style.boxShadow = `0 20px 40px rgba(0, 0, 0, 0.6)`;
+        cityNameElement.style.color = "var(--copper)";
+        cityNameElement.style.textShadow = 'none';
     });
 
     card.addEventListener('click', (e) => {
@@ -223,20 +267,28 @@ cards.forEach(card => {
 
         if (isAlreadyFlipped) {
             card.classList.remove('is-flipped');
-            updateCenterUI('analyzing', data, cityName);
+            updateCenterUI('analyzing', data, cityNameText);
         } else {
+            fillCardBack(card, data);
             card.classList.add('is-flipped');
-            updateCenterUI('locked', data, cityName);
+            updateCenterUI('locked', data, cityNameText);
+            card.style.borderColor = data.color;
+            card.style.boxShadow = `0 0 50px ${data.color}66`;
         }
     });
 });
 
 function displayKeywords(data) {
+
+    if (isLocationLocked) return;
+
     const color = data.color;
     const list = data.list;
-    
     kwContainer.innerHTML = '';
+
     list.forEach((text, i) => {
+        if (isLocationLocked) return;
+
         const span = document.createElement('span');
         span.className = 'keyword';
         span.innerText = text;
@@ -255,17 +307,23 @@ function displayKeywords(data) {
         kwContainer.appendChild(span);
         
         setTimeout(() => {
-            span.classList.add('visible');
-            span.style.transform = `translateY(0)`;
+            if (!isLocationLocked) {
+                span.classList.add('visible');
+                span.style.transform = `translateY(0)`;
+            } else {
+                span.remove();
+            }
         }, i * 150);
     });
 }
 
-function clearKeywords() {
-    const activeKeywords = kwContainer.querySelectorAll('.keyword');
-    activeKeywords.forEach(kw => {
-        kw.classList.remove('visible');
-    });
+function clearKeywords(all = false) {
+    if (all) {
+        kwContainer.innerHTML = '';
+    } else {
+        const keywords = kwContainer.querySelectorAll('.keyword');
+        keywords.forEach(kw => kw.remove());
+    }
 }
 
 document.addEventListener('click', () => {
@@ -295,6 +353,11 @@ function updateCenterUI(state, data = null, cityName = '') {
     switch (state) {
         case 'locked':
             isLocationLocked = true;
+            clearKeywords(true);
+            binaryCanvas.classList.add('active');
+            generateBinaryStatic(data.color);
+            drawBinary(data.color);
+
             logo.classList.add('hidden');
             center.classList.add('active-sphere');
             center.style.borderColor = data.color;
@@ -310,6 +373,8 @@ function updateCenterUI(state, data = null, cityName = '') {
 
         case 'analyzing':
             isLocationLocked = false;
+            displayKeywords(data);
+            if(binaryCanvas) binaryCanvas.classList.remove('active');
             logo.classList.add('hidden');
             stream.innerText = `ANALYZING...\n '${cityName}'`;
             stream.style.color = data.color;
@@ -320,10 +385,87 @@ function updateCenterUI(state, data = null, cityName = '') {
 
         case 'default':
             isLocationLocked = false;
+            clearKeywords(true)
+            if(binaryCanvas) binaryCanvas.classList.remove('active');
             stream.innerText = "SCANNING...";
             stream.style.color = copper;
             center.style.borderColor = copper;
             center.style.boxShadow = `0 0 30px rgba(184, 115, 51, 0.2)`;
             break;
+    }
+}
+
+function fillCardBack(card, data) {
+    card.style.setProperty('--location-color', data.color);
+    card.querySelector('.val-alt').innerText = data.altitude;
+    card.querySelector('.val-meteo').innerText = data.meteo;
+    
+    const resContainer = card.querySelector('.val-ressources');
+    resContainer.innerHTML = ''; 
+    data.ressources.forEach(res => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.style.borderColor = data.color + '44';
+        span.innerText = res;
+        resContainer.appendChild(span);
+    });
+}
+
+/** Background binary animation **/
+
+let binaryCanvas, ctx;
+const binaryGrid = [];
+
+function initBinaryBackground() {
+    binaryCanvas = document.createElement('canvas');
+    binaryCanvas.id = 'binary-bg';
+    document.body.appendChild(binaryCanvas);
+    ctx = binaryCanvas.getContext('2d');
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+}
+
+function resizeCanvas() {
+    binaryCanvas.width = window.innerWidth;
+    binaryCanvas.height = window.innerHeight;
+}
+
+function drawBinary(color) {
+    if (!isLocationLocked) {
+        ctx.clearRect(0, 0, binaryCanvas.width, binaryCanvas.height);
+        return;
+    }
+    
+    ctx.clearRect(0, 0, binaryCanvas.width, binaryCanvas.height);
+    ctx.font = '10px Orbitron';
+    ctx.fillStyle = color;
+    
+    binaryData.forEach(point => {
+        ctx.globalAlpha = point.alpha;
+        ctx.fillText(point.char, point.x, point.y);
+    });
+
+    requestAnimationFrame(() => drawBinary(color));
+}
+
+let binaryData = []; 
+
+function generateBinaryStatic(color) {
+    binaryData = []; 
+    const fontSize = 15;
+    const columns = Math.floor(binaryCanvas.width / fontSize);
+    const rows = Math.floor(binaryCanvas.height / fontSize);
+
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < columns; x++) {
+            if (Math.random() > 0.92) {
+                binaryData.push({
+                    x: x * fontSize,
+                    y: y * fontSize,
+                    char: Math.random() > 0.5 ? "1" : "0",
+                    alpha: Math.random() * 0.15 + 0.3 
+                });
+            }
+        }
     }
 }
