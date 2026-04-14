@@ -116,3 +116,51 @@ function generateCascade() {
 }
 
 document.addEventListener('DOMContentLoaded', generateCascade);
+
+
+/**
+ * Déclenchement de la séquence de transition : coffret -> vignettes
+ */
+
+document.querySelector('.book-wrap').addEventListener('click', function() {    
+    const book = document.querySelector('.scene');
+    const wrapper = document.querySelector('.pentagon-wrapper');
+    const cards = document.querySelectorAll('.city-card');
+
+    book.classList.add('shift-left');
+
+    wrapper.classList.add('is-visible');
+
+    setTimeout(() => {
+        cards.forEach((card, index) => {
+            const staggerDelay = index * 500; 
+            const cityName = card.querySelector('.city-name').innerText;
+            void card.offsetWidth;
+
+            // Début de la phase Émergence
+            setTimeout(() => {
+                card.classList.add('emerging');
+
+                setTimeout(() => {
+                    card.classList.remove('emerging');
+                    card.classList.add('deployed');
+                }, 1200); 
+
+            }, staggerDelay);
+        });
+    }, 600);
+
+    // Suivi de la disparition du livre
+    setTimeout(() => {
+        book.classList.add('fade-out');
+        console.log(">>> Le coffret est désormais invisible.");
+    }, cards.length * 500 + 2500);
+
+    const orbit = document.querySelector('.orbit-ring');
+    const centerData = document.querySelector('.center-data');
+    setTimeout(() => {
+        orbit.classList.add('active');
+        centerData.classList.add('active');
+    }, 6000);
+
+});

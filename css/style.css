@@ -23,9 +23,25 @@ body {
 }
 
 .scene {
+    position: absolute;
+    z-index: 10;
     width: 480px;
     height: 650px;
     perspective: 2000px;
+
+    transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1), 
+                opacity 1s ease-in-out;
+}
+
+.scene.shift-left {
+    transform: translateX(-100px) rotateY(-10deg);
+}
+
+/* Disparition du coffret */
+.scene.fade-out {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.8) rotateY(-30deg);
+    pointer-events: none;
 }
 
 .book-wrap {
@@ -51,6 +67,7 @@ body {
     transform: rotateY(-90deg);
     background: linear-gradient(to right, #050505, #1a1a1a);
     border-left: 2px solid var(--copper);
+    z-index: 5;
 }
 
 .top {
@@ -59,6 +76,7 @@ body {
     top: calc(var(--book-depth) / -2);
     transform: rotateX(90deg);
     background: #111;
+    z-index: 5;
 }
 
 .bottom {
@@ -67,6 +85,7 @@ body {
     bottom: calc((var(--book-depth) + 5px) / -2);
     transform: rotateX(-90deg);
     background: #050505;
+    z-index: 5;
 }
 
 .back {
@@ -74,6 +93,7 @@ body {
     height: 650px;
     transform: translateZ(calc(var(--book-depth) / -2)) rotateY(180deg);
     background: #050505;
+    z-index: 5;
 }
 
 /*** FRONT ***/
@@ -86,7 +106,7 @@ body {
     display: grid;
     grid-template-rows: 2fr 3fr; 
     overflow: hidden;
-    z-index: 2;
+    z-index: 10;
 }
 
 .top-section {
@@ -152,4 +172,178 @@ body {
     box-shadow: 0 0 8px rgba(184, 115, 51, 0.3);
     /* Un léger flou pour l'aspect vaporeux */
     filter: blur(1px); 
+}
+
+/*** VIGNETTE ***/
+.pentagon-wrapper {
+    opacity: 0; /* Invisible au début */
+    transition: opacity 1s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.pentagon-wrapper.is-visible {
+    opacity: 1;
+}
+
+.pentagon-container {
+    position: relative;
+    width: 800px;
+    height: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.orbit-ring, .center-data {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8); 
+    transition: transform 1.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                opacity 1.5s ease-out;
+}
+
+.orbit-ring.active {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.center-data.active {
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.center-data {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: 180px;
+    height: 180px;
+    border: 2px solid var(--copper);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(184, 115, 51, 0.05);
+    box-shadow: 0 0 30px rgba(184, 115, 51, 0.2);
+    z-index: 10;
+}
+
+.project-logo {
+    font-size: 3rem;
+    color: var(--copper);
+    font-weight: 100;
+}
+
+.orbit-ring {
+    position: absolute;
+    width: 640px;
+    height: 640px;
+    border: 1px solid var(--copper);
+    border-radius: 50%;
+    
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    z-index: 1;
+
+    box-shadow: inset 0 0 20px rgba(184, 115, 51, 0.1), 
+                0 0 20px rgba(184, 115, 51, 0.1);
+    
+    pointer-events: none;
+}
+
+.data-stream {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--copper);
+    opacity: 0.6;
+}
+
+.city-card {
+    position: absolute;
+    opacity: 1;
+    pointer-events: none;
+    transform: translate(0, 0) scale(0);
+    transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1), 
+                opacity 1.2s ease-in-out;
+    z-index: 5;
+
+    width: 260px;
+    height: 220px;
+
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(184, 115, 51, 0.3);
+    background-color: #111;
+    cursor: pointer;
+    z-index: 8;
+}
+
+.city-card.emerging {
+    opacity: 1;
+    transform: translate(400px, 0) scale(0.7) rotateY(-25deg);
+    z-index: 8;
+}
+
+.city-card.deployed {
+    opacity: 1;
+    pointer-events: auto;
+    transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                opacity 1s ease-out;
+    z-index: 15;
+}
+
+.loc-1.deployed { transform: rotate(0deg) translateY(-320px) rotate(0deg) scale(1); }
+.loc-2.deployed { transform: rotate(80deg) translateY(-320px) rotate(-80deg) scale(1); }
+.loc-3.deployed { transform: rotate(144deg) translateY(-320px) rotate(-144deg) scale(1); }
+.loc-4.deployed { transform: rotate(216deg) translateY(-320px) rotate(-216deg) scale(1); }
+.loc-5.deployed { transform: rotate(280deg) translateY(-320px) rotate(-280deg) scale(1); }
+
+.city-card:hover {
+    z-index: 20;
+    scale: 1.1;
+    filter: brightness(1.2);
+    box-shadow: 0 30px 60px rgba(184, 115, 51, 0.2);
+    border: 1px solid rgba(184, 115, 51, 0.6);
+}
+
+.city-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease;
+}
+
+.city-info-bar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+}
+
+.city-name {
+    margin: 0;
+    color: var(--copper);
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+@media (min-width: 1200px) {
+    .vignettes-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
