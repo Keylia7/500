@@ -353,10 +353,10 @@ function updateCenterUI(state, data = null, cityName = '') {
     switch (state) {
         case 'locked':
             isLocationLocked = true;
+            currentBinaryColor = data.color;
             clearKeywords(true);
-            binaryCanvas.classList.add('active');
             generateBinaryStatic(data.color);
-            drawBinary(data.color);
+            binaryCanvas.classList.add('active');
 
             logo.classList.add('hidden');
             center.classList.add('active-sphere');
@@ -423,6 +423,7 @@ function initBinaryBackground() {
     ctx = binaryCanvas.getContext('2d');
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    drawBinary();
 }
 
 function resizeCanvas() {
@@ -430,25 +431,28 @@ function resizeCanvas() {
     binaryCanvas.height = window.innerHeight;
 }
 
+let binaryData = [];
+let binaryOpacity = 0;
+let currentBinaryColor = '#ffffff'
+
 function drawBinary(color) {
-    if (!isLocationLocked) {
-        ctx.clearRect(0, 0, binaryCanvas.width, binaryCanvas.height);
-        return;
-    }
-    
+    const targetOpacity = isLocationLocked ? 1 : 0;
+    binaryOpacity += (targetOpacity - binaryOpacity) * 0.05;
+
     ctx.clearRect(0, 0, binaryCanvas.width, binaryCanvas.height);
-    ctx.font = '10px Orbitron';
-    ctx.fillStyle = color;
-    
-    binaryData.forEach(point => {
-        ctx.globalAlpha = point.alpha;
-        ctx.fillText(point.char, point.x, point.y);
-    });
+
+    if (binaryOpacity > 0.001) {
+        ctx.font = '10px Orbitron';
+        ctx.fillStyle = currentBinaryColor;
+
+        binaryData.forEach(point => {
+            ctx.globalAlpha = point.alpha * binaryOpacity;
+            ctx.fillText(point.char, point.x, point.y);
+        });
+    }
 
     requestAnimationFrame(() => drawBinary(color));
 }
-
-let binaryData = []; 
 
 function generateBinaryStatic(color) {
     binaryData = []; 
