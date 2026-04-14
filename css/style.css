@@ -1,6 +1,7 @@
 :root {
     --copper: #b87333;
-    --bg-gradient: radial-gradient(circle at bottom, #2c3e50 0%, #050505 80%)
+    --bg-gradient: radial-gradient(circle at bottom, #2c3e50 0%, #050505 80%);
+    --book-depth: 60px;
 }
 
 @font-face {
@@ -21,17 +22,71 @@ body {
     font-family: 'Orbitron', sans-serif;
 }
 
-.book-cover {
+.scene {
+    width: 480px;
+    height: 650px;
+    perspective: 2000px;
+}
+
+.book-wrap {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease;
+    transform: rotateY(-15deg) rotateX(5deg);
+}
+
+.book-face {
+    position: absolute;
+    background: #050505; 
+    border: 1px solid rgba(184, 115, 51, 0.2);
+}
+
+/*** SIDES OF THE BOX (except front)) ***/
+.spine {
+    width: var(--book-depth);
+    height: 650px;
+    left: calc(var(--book-depth) / -2);
+    transform: rotateY(-90deg);
+    background: linear-gradient(to right, #050505, #1a1a1a);
+    border-left: 2px solid var(--copper);
+}
+
+.top {
+    width: 480px;
+    height: var(--book-depth);
+    top: calc(var(--book-depth) / -2);
+    transform: rotateX(90deg);
+    background: #111;
+}
+
+.bottom {
+    width: 480px;
+    height: var(--book-depth);
+    bottom: calc((var(--book-depth) + 5px) / -2);
+    transform: rotateX(-90deg);
+    background: #050505;
+}
+
+.back {
+    width: 480px;
+    height: 650px;
+    transform: translateZ(calc(var(--book-depth) / -2)) rotateY(180deg);
+    background: #050505;
+}
+
+/*** FRONT ***/
+
+.front {
     width: 480px;
     height: 650px;
     background: var(--bg-gradient);
-    position: relative;
-    border-radius: 2px;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
-
+    transform: translateZ(calc(var(--book-depth) / 2));
     display: grid;
     grid-template-rows: 2fr 3fr; 
     overflow: hidden;
+    z-index: 2;
 }
 
 .top-section {
