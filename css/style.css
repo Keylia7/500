@@ -223,19 +223,58 @@ body {
     height: 180px;
     border: 2px solid var(--copper);
     border-radius: 50%;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    transition: all 0.5s ease;
+
     background: rgba(184, 115, 51, 0.05);
     box-shadow: 0 0 30px rgba(184, 115, 51, 0.2);
     z-index: 10;
+}
+.center-data.active-sphere {
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    box-shadow: 
+        inset 0 0 40px var(--sphere-color-glow-low), 
+        0 0 60px var(--sphere-color-glow-low) !important;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.center-data.active-sphere .data-stream {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 1
 }
 
 .project-logo {
     font-size: 3rem;
     color: var(--copper);
     font-weight: 100;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.project-logo.hidden {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+    position: absolute; 
 }
 
 .orbit-ring {
@@ -262,9 +301,20 @@ body {
     letter-spacing: 3px;
     color: var(--copper);
     opacity: 0.6;
+
+    transition: all 0.3s ease;
+    text-align: center;
+    white-space: pre-wrap;
+    width: 90%;
+}
+
+.data-stream.analyzing {
+    font-weight: bold;
+    letter-spacing: 3px;
 }
 
 .city-card {
+    perspective: 1000px;
     position: absolute;
     opacity: 1;
     pointer-events: none;
@@ -297,6 +347,78 @@ body {
     transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), 
                 opacity 1s ease-out;
     z-index: 15;
+}
+
+.city-card.is-flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 25px 15px;
+    box-sizing: border-box;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.back-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+.back-content h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.back-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    font-family: sans-serif; 
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9); 
+
+    overflow-y: auto; 
+    max-height: 200px;
+    padding-right: 5px;
+}
+
+.back-content p::-webkit-scrollbar {
+    width: 4px;
+}
+.back-content p::-webkit-scrollbar-thumb {
+    background: var(--copper);
+    border-radius: 2px;
 }
 
 .loc-1.deployed { transform: rotate(0deg) translateY(-320px) rotate(0deg) scale(1); }
@@ -346,4 +468,31 @@ body {
     .vignettes-container {
         grid-template-columns: repeat(4, 1fr);
     }
+}
+
+/** Animation on interaction on cards **/
+#background-keywords {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.keyword {
+    position: absolute;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity 1s ease, transform 2s ease-out;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-weight: 300;
+}
+
+.keyword.visible {
+    opacity: 0.3;
 }

@@ -119,11 +119,10 @@ document.addEventListener('DOMContentLoaded', generateCascade);
 /**
  * Déclenchement de la séquence de transition : coffret -> vignettes
  */
-
+const cards = document.querySelectorAll('.city-card');
 document.querySelector('.book-wrap').addEventListener('click', function() {    
     const book = document.querySelector('.scene');
     const wrapper = document.querySelector('.pentagon-wrapper');
-    const cards = document.querySelectorAll('.city-card');
 
     book.classList.add('shift-left');
 
@@ -162,3 +161,169 @@ document.querySelector('.book-wrap').addEventListener('click', function() {
     }, 6000);
 
 });
+
+const keywordsData = {
+    'loc-1': { 
+        color: '#95a5a6', 
+        list: ['Cirque Glaciaire', '1850m', 'UV Intenses', 'Pâturages', 'Eau de source'] 
+    },
+    'loc-2': { 
+        color: '#00a8ff',
+        list: ['Cinq Îlots', 'Énergie Marémotrice', 'Vents Salins', '85% Humidité', 'Halieutique'] 
+    },
+    'loc-3': { 
+        color: '#27ae60', 
+        list: ['Inertie Thermique', 'Semi-enterré', 'Terrasses', 'Pluie', 'Tempéré'] 
+    },
+    'loc-4': { 
+        color: '#f1c40f', 
+        list: ['Pierre Sèche', 'Plateau Calcaire', 'Vergers', 'Puits Artésiens', 'Médiéval'] 
+    },
+    'loc-5': { 
+        color: '#e67e22', 
+        list: ['Aride', 'Solaire Illimité', '45°C', 'Minéraux', 'Technologique'] 
+    }
+};
+
+const kwContainer = document.createElement('div');
+kwContainer.id = 'background-keywords';
+document.body.appendChild(kwContainer);
+
+let isLocationLocked = false;
+
+cards.forEach(card => {
+    const locClass = [...card.classList].find(c => c.startsWith('loc-'));
+    const data = keywordsData[locClass];
+    const backFace = card.querySelector('.card-back');
+    const cityName = card.querySelector('.city-name').innerText;
+
+    if (data && backFace) {
+        backFace.style.backgroundColor = `${data.color}15`; 
+        backFace.style.border = `1px solid ${data.color}`;
+        backFace.querySelector('h3').style.color = data.color;
+    }
+
+    card.addEventListener('mouseenter', () => {
+        if (isLocationLocked) return;
+        displayKeywords(data);
+        updateCenterUI('analyzing', data, cityName);
+    });
+
+    card.addEventListener('mouseleave', () => {
+        if (isLocationLocked) return;
+        clearKeywords();
+        updateCenterUI('default');
+    });
+
+    card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isAlreadyFlipped = card.classList.contains('is-flipped');
+
+        cards.forEach(c => c.classList.remove('is-flipped'));
+
+        if (isAlreadyFlipped) {
+            card.classList.remove('is-flipped');
+            updateCenterUI('analyzing', data, cityName);
+        } else {
+            card.classList.add('is-flipped');
+            updateCenterUI('locked', data, cityName);
+        }
+    });
+});
+
+function displayKeywords(data) {
+    const color = data.color;
+    const list = data.list;
+    
+    kwContainer.innerHTML = '';
+    list.forEach((text, i) => {
+        const span = document.createElement('span');
+        span.className = 'keyword';
+        span.innerText = text;
+        span.style.color = color;
+        span.style.textShadow = `0 0 8px ${color}66`;
+        
+        const x = Math.random() * 80 + 10; 
+        const y = Math.random() * 80 + 10;
+        
+        Object.assign(span.style, {
+            left: `${x}%`,
+            top: `${y}%`,
+            transform: `translateY(20px)`
+        });
+
+        kwContainer.appendChild(span);
+        
+        setTimeout(() => {
+            span.classList.add('visible');
+            span.style.transform = `translateY(0)`;
+        }, i * 150);
+    });
+}
+
+function clearKeywords() {
+    const activeKeywords = kwContainer.querySelectorAll('.keyword');
+    activeKeywords.forEach(kw => {
+        kw.classList.remove('visible');
+    });
+}
+
+document.addEventListener('click', () => {
+    if (!isLocationLocked) return;
+    cards.forEach(c => c.classList.remove('is-flipped'));
+    updateCenterUI('default');
+});
+
+/**
+ * Gère les états visuels du centre de données
+ * @param {string} state - 'default', 'analyzing', ou 'locked'
+ * @param {object} data - Les données du lieu (optionnel)
+ * @param {string} cityName - Le nom du lieu (optionnel)
+ */
+function updateCenterUI(state, data = null, cityName = '') {
+    const center = document.querySelector('.center-data');
+    const stream = document.querySelector('.data-stream');
+    const logo = document.querySelector('.project-logo');
+    const copper = "var(--copper)";
+
+    // Reset par défaut
+    center.classList.remove('active-sphere');
+    center.style.backgroundColor = 'transparent';
+    stream.classList.remove('analyzing');
+    logo.classList.remove('hidden');
+
+    switch (state) {
+        case 'locked':
+            isLocationLocked = true;
+            logo.classList.add('hidden');
+            center.classList.add('active-sphere');
+            center.style.borderColor = data.color;
+            center.style.setProperty('--sphere-color-glow-low', data.color + '66');
+            
+            stream.innerHTML = `
+                <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                    <span style="font-size: 0.55em; letter-spacing: 5px; opacity: 0.7; margin-bottom: 8px; color: white;">LOCATION</span>
+                    <span style="color: ${data.color}; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">${cityName.toUpperCase()}</span>
+                    <span style="font-size: 0.55em; letter-spacing: 5px; opacity: 0.7; margin-top: 8px; color: white;">DATABASE</span>
+                </div>`;
+            break;
+
+        case 'analyzing':
+            isLocationLocked = false;
+            logo.classList.add('hidden');
+            stream.innerText = `ANALYZING...\n '${cityName}'`;
+            stream.style.color = data.color;
+            stream.classList.add('analyzing');
+            center.style.borderColor = data.color;
+            center.style.boxShadow = `0 0 30px ${data.color}44`;
+            break;
+
+        case 'default':
+            isLocationLocked = false;
+            stream.innerText = "SCANNING...";
+            stream.style.color = copper;
+            center.style.borderColor = copper;
+            center.style.boxShadow = `0 0 30px rgba(184, 115, 51, 0.2)`;
+            break;
+    }
+}
