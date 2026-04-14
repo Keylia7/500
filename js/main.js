@@ -43,14 +43,12 @@ function generateCascade() {
 
             // --- GÉOMÉTRIE ---
             const baseSize = 24;
-            // Réduction de taille plus progressive
             const sizeReduction = isFalling ? (Math.random() * (dropIndex / 4)) : 0;
             const finalSize = Math.max(3, baseSize - sizeReduction);
             
             const rotation = Math.random() * 360;
             const scale = 0.5 + Math.random() * 0.5;
 
-            // Formes variées
             let shape = "none";
             if (isFalling && Math.random() > 0.4) {
                 const shapes = [
